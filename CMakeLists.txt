@@ -25,7 +25,9 @@ target_sources(${target_app} PRIVATE ${SOURCES})
 
 set_target_properties(${target_app} PROPERTIES AUTOMOC ON)
 
-target_compile_definitions(${target_app} PRIVATE TEST_FILES_FOLDER="${PROJECT_SOURCE_DIR}/data/tests/TestFolder")
+target_include_directories(${target_app} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+target_compile_definitions(${target_app} PRIVATE TEST_FILES_FOLDER="${CMAKE_CURRENT_SOURCE_DIR}/data/tests/TestFolder")
 
 target_link_libraries(${target_app} PRIVATE 
     Qt5::Core
