@@ -27,8 +27,8 @@ View::Controller::Controller(QObject *parent): QObject(parent)
     connect(_readers_thread.get(),&FileReaderThread::message,this,&Controller::statusLoadedMessage);
     connect(_readers_thread.get(),&FileReaderThread::filesCount,this,&Controller::filesCount);
     connect(_readers_thread.get(),&FileReaderThread::filesLoaded,this,&Controller::progress);
-    _reader_factory->registerCreator("xml",[](){ return std::unique_ptr<XMLFileReader>();});
-    _reader_factory->registerCreator("json",[](){return std::unique_ptr<JsonFileReader>();});
+    _reader_factory->registerCreator("xml",[](){ return std::make_unique<XMLFileReader>();});
+    _reader_factory->registerCreator("json",[](){return std::make_unique<JsonFileReader>();});
 }
 
 void View::Controller::loadFiles(const QString &dir_path)

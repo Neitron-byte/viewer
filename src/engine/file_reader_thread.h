@@ -11,6 +11,7 @@
 namespace View {
 
 class ReaderFactory;
+class IFileReader;
 /*!
  * \brief The FileReaderThread class
  * Поток чтения файлов
@@ -37,7 +38,9 @@ protected:
 private:
     void pushData(const Record& record);
 
-    void sendMessage(const QString& file_name, const QString& msg);    
+    void sendMessage(const QString& file_name, const QString& msg);
+
+    std::unique_ptr<IFileReader> getReader(const QString& extansion);
 
 private:
     mutable QMutex _mutex;

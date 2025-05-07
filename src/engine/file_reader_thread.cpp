@@ -36,7 +36,6 @@ void View::FileReaderThread::run()
     Q_EMIT filesCount(files.count());
     for (const QFileInfo &file_info : files)
     {
-        qDebug() << file_info.suffix();
         std::unique_ptr<IFileReader> file_reader = _reader_factory->createReader(file_info.suffix());
         if(file_reader)
         {
