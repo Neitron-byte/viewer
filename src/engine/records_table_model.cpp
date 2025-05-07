@@ -1,5 +1,7 @@
 #include "records_table_model.h"
 
+#include <QDebug>
+
 #include "database/table.h"
 
 View::RecordsTableModel::RecordsTableModel(std::shared_ptr<Table> table, QObject *parent): QAbstractTableModel(parent), _table(table)
@@ -19,10 +21,17 @@ void View::RecordsTableModel::loadData()
     endResetModel();
 }
 
-void View::RecordsTableModel::appendData(const QList<QPair<QString, Record> > &records)
+// void View::RecordsTableModel::appendData(const QList<QPair<QString, Record> > &records)
+// {
+//     beginInsertRows(QModelIndex(),_records.count(),_records.count()+records.count()-1);
+//     _records.append(records);
+//     endInsertRows();
+// }
+
+void View::RecordsTableModel::append(const QPair<QString, Record> &record)
 {
-    beginInsertRows(QModelIndex(),_records.count(),_records.count()+records.count()-1);
-    _records.append(records);
+    beginInsertRows(QModelIndex(),_records.count(),_records.count());
+    _records.append(record);
     endInsertRows();
 }
 

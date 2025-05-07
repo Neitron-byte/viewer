@@ -20,7 +20,7 @@ const QLatin1String table_name("editors");
 View::Controller::Controller(QObject *parent): QObject(parent)
     , _reader_factory{std::make_shared<ReaderFactory>()}
     , _readers_thread{std::make_unique<FileReaderThread>(_reader_factory)}
-    , _table{std::make_shared<Table>(table_name, Connection::createConnection(QApplication::applicationFilePath()+QDir::separator()+data_base_name))}
+    , _table{std::make_shared<Table>(table_name, Connection::createConnection(data_base_name))}
     , _records_model{new RecordsTableModel(_table,this)}
 {
     connect(_readers_thread.get(),&FileReaderThread::finished,this,&Controller::onLoadThreadFinished);
@@ -29,6 +29,15 @@ View::Controller::Controller(QObject *parent): QObject(parent)
     connect(_readers_thread.get(),&FileReaderThread::filesLoaded,this,&Controller::progress);
     _reader_factory->registerCreator("xml",[](){ return std::make_unique<XMLFileReader>();});
     _reader_factory->registerCreator("json",[](){return std::make_unique<JsonFileReader>();});
+
+    if(_table->isConnected() && _table->create())
+    {
+        qDebug() << "Connection to DB is successful";
+    }
+    else
+    {
+        qDebug() << "Connection to DB is failed";
+    }
 }
 
 void View::Controller::loadFiles(const QString &dir_path)
@@ -48,9 +57,8 @@ void View::Controller::onLoadThreadFinished()
 
     for(const auto& rec : records)
     {
-        QString uuid = uuidGenerate();
-        _records_model->appendData({{uuid,rec}});
-        _table->append(uuid,rec);
+        QString uuid = uuidGenerate();        
+        _records_model->append({uuid,rec});
     }
 
     Q_EMIT filesLoaded();
