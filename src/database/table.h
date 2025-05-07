@@ -29,6 +29,8 @@ public:
     
     QString error() const override;
 
+    bool isConnected() const;
+
 private:
     bool execQuery(const QString &query) const;
 

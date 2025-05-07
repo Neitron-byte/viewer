@@ -154,6 +154,11 @@ QString View::Table::error() const
     return _connection.lastError().text();
 }
 
+bool View::Table::isConnected() const
+{
+    return _connection.isOpen();
+}
+
 bool View::Table::execQuery(const QString &query) const
 {
     QSqlQuery q(_connection);
