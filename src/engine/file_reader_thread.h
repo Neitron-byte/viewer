@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include <QThread>
 #include <QList>
@@ -8,6 +9,7 @@
 #include "data/record.h"
 
 namespace View {
+
 class ReaderFactory;
 /*!
  * \brief The FileReaderThread class
@@ -25,6 +27,8 @@ public:
 
 signals:
     void message(const QString& msg);
+    void filesCount(int num);
+    void filesLoaded(int num);
 
     // QThread interface    
 protected:
@@ -33,7 +37,7 @@ protected:
 private:
     void pushData(const Record& record);
 
-    void sendMessage(const QString& file_name, const QString& msg);
+    void sendMessage(const QString& file_name, const QString& msg);    
 
 private:
     mutable QMutex _mutex;

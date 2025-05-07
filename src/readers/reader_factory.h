@@ -1,7 +1,9 @@
 #pragma once
+#include <memory>
 #include <functional>
 
 #include <QHash>
+#include <QString>
 
 namespace View
 {
@@ -9,7 +11,7 @@ class IFileReader;
 
 /*!
  * \brief The ReaderFactory class
- * Фабрика читателец
+ * Фабрика читателей
  * читатель определяется по расширению файла
  */
 
@@ -19,11 +21,11 @@ public:
     ReaderFactory() = default;
     ~ReaderFactory() = default;
 
-    using readerCreator = std::function<IFileReader*()>;
+    using readerCreator = std::function<std::unique_ptr<IFileReader>()>;
 
     void registerCreator(const QString& extension, readerCreator creator);
 
-    IFileReader* createReader(const QString& extension);
+    std::unique_ptr<IFileReader> createReader(const QString& extension);
 
 private:
     QHash<QString,readerCreator> _creators;

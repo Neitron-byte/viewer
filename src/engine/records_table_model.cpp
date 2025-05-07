@@ -28,7 +28,7 @@ void View::RecordsTableModel::appendData(const QList<QPair<QString, Record> > &r
 
 int View::RecordsTableModel::rowCount(const QModelIndex &parent) const
 {
-    return _table->count();
+    return _records.count();
 }
 
 int View::RecordsTableModel::columnCount(const QModelIndex &parent) const

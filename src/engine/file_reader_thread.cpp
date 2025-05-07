@@ -33,9 +33,11 @@ void View::FileReaderThread::run()
     Q_EMIT message(tr("Всего файлов: %1").arg(files.count()));
     int success = 0;
     int fail = 0;
+    Q_EMIT filesCount(files.count());
     for (const QFileInfo &file_info : files)
     {
-        IFileReader* file_reader = _reader_factory->createReader(file_info.suffix());
+        qDebug() << file_info.suffix();
+        std::unique_ptr<IFileReader> file_reader = _reader_factory->createReader(file_info.suffix());
         if(file_reader)
         {
             Record rec;
@@ -56,7 +58,9 @@ void View::FileReaderThread::run()
             sendMessage(file_info.fileName(),tr("Тип расширения не поддерживается"));
             ++fail;
         }
+        Q_EMIT filesLoaded(success+fail);
     }
+    Q_EMIT message(tr("Итого:/nПрочитано успешно: %1/n Прочитано с ошибками: %2").arg(success).arg(fail));
 }
 
 void View::FileReaderThread::pushData(const Record &record)

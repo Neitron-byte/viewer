@@ -7,7 +7,7 @@ void View::ReaderFactory::registerCreator(const QString &extension, readerCreato
     _creators[extension] = creator;
 }
 
-View::IFileReader *View::ReaderFactory::createReader(const QString &extension)
+std::unique_ptr<View::IFileReader> View::ReaderFactory::createReader(const QString &extension)
 {
     auto it = _creators.find(extension);
     if(it != _creators.end())
