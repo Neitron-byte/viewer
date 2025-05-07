@@ -48,7 +48,9 @@ void View::Controller::onLoadThreadFinished()
 
     for(const auto& rec : records)
     {
-        _records_model->appendData({{uuidGenerate(),rec}});
+        QString uuid = uuidGenerate();
+        _records_model->appendData({{uuid,rec}});
+        _table->append(uuid,rec);
     }
 
     Q_EMIT filesLoaded();
