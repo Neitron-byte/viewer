@@ -57,6 +57,12 @@ void View::Controller::loadData()
     Q_EMIT message(tr("Данные из базы успешно загружены"));
 }
 
+void View::Controller::clearData()
+{
+    if(_table->clear())
+        _records_model->clear();
+}
+
 View::RecordsTableModel *View::Controller::getModel() const
 {
     return _records_model;

@@ -35,8 +35,11 @@ public:
     /// Добавление
     void append(const QPair<QString,Record>& record);
 
-    //Загрузка данных
+    ///Загрузка данных
     void setData(QList<QPair<QString,Record>> records);
+
+    ///Очистка модели
+    void clear();
 
     // QAbstractItemModel interface
 public:

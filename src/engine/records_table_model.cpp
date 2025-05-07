@@ -23,6 +23,13 @@ void View::RecordsTableModel::setData(QList<QPair<QString, Record> > records)
     endResetModel();
 }
 
+void View::RecordsTableModel::clear()
+{
+    beginRemoveRows(QModelIndex(),0,_records.count()-1);
+    _records.clear();
+    endRemoveRows();
+}
+
 int View::RecordsTableModel::rowCount(const QModelIndex &parent) const
 {
     return _records.count();

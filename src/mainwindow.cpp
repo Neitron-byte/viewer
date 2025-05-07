@@ -14,7 +14,6 @@
 
 View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     , _controller{new Controller}
-    ,_status_widget{new StatusWidget}
 {
     _table_view = new QTableView(this);
     _table_view->setModel(_controller->getModel());
@@ -29,14 +28,8 @@ View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
 
     connect(import_action,&QAction::triggered,this,&MainWindow::onImportActionTriggered);
 
-
-    connect(_controller.get(),&Controller::statusLoadedMessage,_status_widget.get(),&StatusWidget::pushMessage);
-    connect(_controller.get(),&Controller::filesCount,[this](int count){
-        _status_widget->setRange({0,count});
-    });
-    connect(_controller.get(),&Controller::filesCount,_status_widget.get(),&StatusWidget::setValue);
-
-
+    QAction* clear_action = menu->addAction(tr("Очистить"));
+    connect(clear_action,&QAction::triggered,_controller.get(),&Controller::clearData);
     connect(_controller.get(),&Controller::message,[this](const QString& msg){
         statusBar()->showMessage(msg);
     });
@@ -52,7 +45,15 @@ void View::MainWindow::onImportActionTriggered()
     if(folder_path.isEmpty())
         return;
 
-    _status_widget->clear();
-    _status_widget->show();
+    StatusWidget* status_widget = new StatusWidget(this);
+    status_widget->setWindowFlag(Qt::Tool,true);
+    status_widget->setAttribute(Qt::WA_DeleteOnClose);
+    connect(_controller.get(),&Controller::statusLoadedMessage,status_widget,&StatusWidget::pushMessage);
+    connect(_controller.get(),&Controller::filesCount,[status_widget](int count){
+        status_widget->setRange({0,count});
+    });
+    connect(_controller.get(),&Controller::filesCount,status_widget,&StatusWidget::setValue);
+
+    status_widget->show();
     _controller->loadFiles(folder_path);
 }

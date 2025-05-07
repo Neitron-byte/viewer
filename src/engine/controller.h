@@ -28,6 +28,7 @@ public:
 
 public slots:
     void loadData();
+    void clearData();
 
 signals:
     void filesLoaded();

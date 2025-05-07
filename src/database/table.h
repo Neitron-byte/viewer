@@ -29,6 +29,8 @@ public:
     
     QString error() const override;
 
+    bool clear() override;
+
     bool isConnected() const;
 
 private:

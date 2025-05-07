@@ -25,5 +25,7 @@ public:
     virtual int count() const = 0;//количество записей в таблице
 
     virtual QString error() const = 0;
+
+    virtual bool clear() = 0;
 };
 }

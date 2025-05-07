@@ -2,7 +2,6 @@
 #include <QMainWindow>
 #include <QScopedPointer>
 
-#include "widgets/status_widget.h"
 #include "engine/controller.h"
 
 class QTableView;
@@ -24,7 +23,6 @@ private slots:
 private:
     QScopedPointer<Controller> _controller;
     QTableView* _table_view;
-    QScopedPointer<StatusWidget> _status_widget;
 };
 }
 

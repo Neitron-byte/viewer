@@ -154,6 +154,12 @@ QString View::Table::error() const
     return _connection.lastError().text();
 }
 
+bool View::Table::clear()
+{
+    QString query = QString("DELETE FROM %1").arg(_table_name);
+    return execQuery(query);
+}
+
 bool View::Table::isConnected() const
 {
     return _connection.isOpen();
