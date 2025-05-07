@@ -30,13 +30,13 @@ public:
         Compile
     };
 
-    explicit RecordsTableModel(std::shared_ptr<Table> table, QObject* parent = nullptr);
+    explicit RecordsTableModel(QObject* parent = nullptr);
 
+    /// Добавление
+    void append(const QPair<QString,Record>& record);
 
-    void loadData();
-
-    void appendData(const QList<QPair<QString,Record>>& records);
-
+    //Загрузка данных
+    void setData(QList<QPair<QString,Record>> records);
 
     // QAbstractItemModel interface
 public:
@@ -48,7 +48,6 @@ public:
 
 private:
     std::shared_ptr<Table> _table;
-
     QList<QPair<QString,Record>> _records;
 };
 }

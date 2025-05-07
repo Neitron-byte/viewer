@@ -42,6 +42,8 @@ private:
 
     std::unique_ptr<IFileReader> getReader(const QString& extansion);
 
+    void clear();
+
 private:
     mutable QMutex _mutex;
 

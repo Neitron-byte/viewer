@@ -26,11 +26,15 @@ public:
 
     RecordsTableModel* getModel() const;
 
+public slots:
+    void loadData();
+
 signals:
     void filesLoaded();
     void statusLoadedMessage(const QString& msg);
     void filesCount(int num);
     void progress(int num);
+    void message(const QString& message);
 
 private slots:
     void onLoadThreadFinished();
@@ -43,5 +47,7 @@ private:
     std::unique_ptr<FileReaderThread> _readers_thread;
     std::shared_ptr<Table> _table;
     RecordsTableModel* _records_model;
+
+    bool _database_is_connected;
 };
 }

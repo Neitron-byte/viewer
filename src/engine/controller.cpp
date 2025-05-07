@@ -21,7 +21,7 @@ View::Controller::Controller(QObject *parent): QObject(parent)
     , _reader_factory{std::make_shared<ReaderFactory>()}
     , _readers_thread{std::make_unique<FileReaderThread>(_reader_factory)}
     , _table{std::make_shared<Table>(table_name, Connection::createConnection(data_base_name))}
-    , _records_model{new RecordsTableModel(_table,this)}
+    , _records_model{new RecordsTableModel(this)}
 {
     connect(_readers_thread.get(),&FileReaderThread::finished,this,&Controller::onLoadThreadFinished);
     connect(_readers_thread.get(),&FileReaderThread::message,this,&Controller::statusLoadedMessage);
@@ -30,20 +30,31 @@ View::Controller::Controller(QObject *parent): QObject(parent)
     _reader_factory->registerCreator("xml",[](){ return std::make_unique<XMLFileReader>();});
     _reader_factory->registerCreator("json",[](){return std::make_unique<JsonFileReader>();});
 
-    if(_table->isConnected() && _table->create())
-    {
-        qDebug() << "Connection to DB is successful";
-    }
-    else
-    {
-        qDebug() << "Connection to DB is failed";
-    }
+    _database_is_connected = (_table->isConnected() && _table->create());
 }
 
 void View::Controller::loadFiles(const QString &dir_path)
 {
     _readers_thread->setDir(dir_path);
     _readers_thread->start();
+}
+
+void View::Controller::loadData()
+{
+    if(!_database_is_connected)
+    {
+        Q_EMIT message(tr("Отсутствует подключение к БД"));
+        return;
+    }
+
+    auto ids = _table->IDs();
+    for(const auto& id : ids)
+    {
+        Record r = _table->getRecord(id);
+        _records_model->append({id,r});
+    }
+
+    Q_EMIT message(tr("Данные из базы успешно загружены"));
 }
 
 View::RecordsTableModel *View::Controller::getModel() const
@@ -54,11 +65,17 @@ View::RecordsTableModel *View::Controller::getModel() const
 void View::Controller::onLoadThreadFinished()
 {
     auto records = _readers_thread->getRecords();
+    if(!_database_is_connected)
+    {
+        Q_EMIT message(tr("Ошибка загрузки данных. Отсутствует подключение к базе"));
+        return;
+    }
 
     for(const auto& rec : records)
     {
-        QString uuid = uuidGenerate();        
-        _records_model->append({uuid,rec});
+        QString uuid = uuidGenerate();
+        if(_table->append(uuid,rec))
+            _records_model->append({uuid,rec});
     }
 
     Q_EMIT filesLoaded();

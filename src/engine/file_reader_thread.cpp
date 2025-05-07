@@ -28,6 +28,7 @@ QList<View::Record> View::FileReaderThread::getRecords() const
 
 void View::FileReaderThread::run()
 {
+    clear();
     QDir directory(_dir_path);
     QFileInfoList files = directory.entryInfoList(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot,QDir::NoSort);
     Q_EMIT message(tr("Всего файлов: %1").arg(files.count()));
@@ -71,5 +72,11 @@ void View::FileReaderThread::pushData(const Record &record)
 void View::FileReaderThread::sendMessage(const QString &file_name, const QString &msg)
 {
     Q_EMIT message(tr("Файл: %1. Cтатус: %2").arg(file_name).arg(msg));
+}
+
+void View::FileReaderThread::clear()
+{
+    QMutexLocker locker(&_mutex);
+    _records.clear();
 }
 

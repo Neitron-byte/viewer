@@ -2,37 +2,25 @@
 
 #include <QDebug>
 
-#include "database/table.h"
-
-View::RecordsTableModel::RecordsTableModel(std::shared_ptr<Table> table, QObject *parent): QAbstractTableModel(parent), _table(table)
+View::RecordsTableModel::RecordsTableModel(QObject *parent): QAbstractTableModel(parent)
 {
 
 }
 
-void View::RecordsTableModel::loadData()
-{
-    beginResetModel();
-    _records.clear();
-    auto ids = _table->IDs();
-    for(const auto& id : ids)
-    {
-        _records.append({id,_table->getRecord(id)});
-    }
-    endResetModel();
-}
-
-// void View::RecordsTableModel::appendData(const QList<QPair<QString, Record> > &records)
-// {
-//     beginInsertRows(QModelIndex(),_records.count(),_records.count()+records.count()-1);
-//     _records.append(records);
-//     endInsertRows();
-// }
 
 void View::RecordsTableModel::append(const QPair<QString, Record> &record)
 {
     beginInsertRows(QModelIndex(),_records.count(),_records.count());
     _records.append(record);
     endInsertRows();
+}
+
+void View::RecordsTableModel::setData(QList<QPair<QString, Record> > records)
+{
+    beginResetModel();
+    _records.clear();
+    _records = records;
+    endResetModel();
 }
 
 int View::RecordsTableModel::rowCount(const QModelIndex &parent) const

@@ -4,6 +4,8 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QFileDialog>
+#include <QTimer>
+#include <QStatusBar>
 
 #include "engine/controller.h"
 #include "engine/records_table_model.h"
@@ -12,7 +14,7 @@
 
 View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     , _controller{new Controller}
-    ,_status_widget{new StatusWidget}
+    ,_status_widget{new StatusWidget(this)}
 {
     _table_view = new QTableView(this);
     _table_view->setModel(_controller->getModel());
@@ -34,6 +36,14 @@ View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     });
     connect(_controller.get(),&Controller::filesCount,_status_widget.get(),&StatusWidget::setValue);
 
+
+    connect(_controller.get(),&Controller::message,[this](const QString& msg){
+        statusBar()->showMessage(msg);
+    });
+
+    QTimer::singleShot(10,[this](){
+        _controller->loadData();
+    });
 }
 
 void View::MainWindow::onImportActionTriggered()
