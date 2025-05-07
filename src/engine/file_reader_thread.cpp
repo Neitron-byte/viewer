@@ -60,7 +60,7 @@ void View::FileReaderThread::run()
         }
         Q_EMIT filesLoaded(success+fail);
     }
-    Q_EMIT message(tr("Итого:/nПрочитано успешно: %1/n Прочитано с ошибками: %2").arg(success).arg(fail));
+    Q_EMIT message(tr("Итого. Прочитано успешно: %1. Прочитано с ошибками: %2").arg(success).arg(fail));
 }
 
 void View::FileReaderThread::pushData(const Record &record)

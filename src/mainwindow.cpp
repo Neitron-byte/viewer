@@ -14,7 +14,7 @@
 
 View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     , _controller{new Controller}
-    ,_status_widget{new StatusWidget(this)}
+    ,_status_widget{new StatusWidget}
 {
     _table_view = new QTableView(this);
     _table_view->setModel(_controller->getModel());
