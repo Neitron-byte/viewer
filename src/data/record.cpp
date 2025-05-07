@@ -5,6 +5,8 @@
 #include <QVariant>
 #include <QVariantList>
 
+#include "utils.h"
+
 const QLatin1String editor_key("texteditor");
 const QLatin1String formats_key("fileformats");
 const QLatin1String encoding_key("encoding");
@@ -12,26 +14,7 @@ const QLatin1String intellisense_key("hasintellisense");
 const QLatin1String plugins_key("hasplugins");
 const QLatin1String compile_key("cancompile");
 
-const QLatin1Char separator(';');
-
-const QLatin1String true_str("true");
-const QLatin1String false_str("false");
-
 const QStringList keys{editor_key,formats_key,encoding_key,intellisense_key,plugins_key,compile_key};
-
-QString toString(bool value)
-{
-    if(value)
-        return true_str;
-    return false_str;
-}
-
-bool toBool(const QString& bool_str)
-{
-    if(bool_str == true_str)
-        return true;
-    return false;
-}
 
 View::Record::Record()
 {
@@ -87,8 +70,8 @@ QMap<QString, QString> View::Record::asXml() const
 {
     QMap<QString,QString> map;
     map[editor_key] = _editor_name;
-    map[formats_key] = _formats.join(separator);
-    map[encoding_key] = _encoding.join(separator);
+    map[formats_key] = toString(_formats);
+    map[encoding_key] = toString(_encoding);
     map[intellisense_key] = toString(_has_intellisense);
     map[plugins_key] = toString(_has_plugins);
     map[compile_key] = toString(_can_compile);
@@ -98,8 +81,8 @@ QMap<QString, QString> View::Record::asXml() const
 bool View::Record::fromXml(const QMap<QString, QString> &map)
 {
     _editor_name = map.value(editor_key,"");
-    _formats = map.value(formats_key,"").split(separator,Qt::SkipEmptyParts);
-    _encoding = map.value(encoding_key,"").split(separator,Qt::SkipEmptyParts);
+    _formats = toList(map.value(formats_key,""));
+    _encoding = toList(map.value(encoding_key,""));
     auto val = map.value(intellisense_key,"");
     if(val == true_str || val == false_str)
         setHasIntelisense(toBool(val));

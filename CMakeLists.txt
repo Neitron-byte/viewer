@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(target_app ${PROJECT_NAME})
 
-add_executable(${target_app})
+add_executable(${target_app}
+    src/utils.h)
 
 find_package(Qt5 REQUIRED COMPONENTS 
     Core
