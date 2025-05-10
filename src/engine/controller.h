@@ -5,12 +5,13 @@
 #include <QString>
 
 #include "file_reader_thread.h"
+#include "database/table_wrapper.h"
 
 namespace View
 {
 class ReaderFactory;
 //class FileReaderThread;
-class Table;
+//class TableWrapper;
 class RecordsTableModel;
 
 /*!
@@ -46,9 +47,8 @@ private:
 private:
     std::shared_ptr<ReaderFactory> _reader_factory;
     std::unique_ptr<FileReaderThread> _readers_thread;
-    std::shared_ptr<Table> _table;
     RecordsTableModel* _records_model;
-
     bool _database_is_connected;
+    std::unique_ptr<TableWrapper> _table;
 };
 }

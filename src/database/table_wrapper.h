@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QMutex>
 
 #include "data/record.h"
 #include "table.h"
@@ -29,6 +30,7 @@ public:
     void create(boolHandler callback);
     void drop(boolHandler callback);
 
+    void append(const QString &id, const Record &rec, boolHandler callback);
     void update(const QString &id, const Record &rec, boolHandler callback);
     void remove(const QString &id, boolHandler callback);
     void contains(const QString &id, boolHandler callback) const;
@@ -48,6 +50,7 @@ private:
     void executeAsync(Function func, std::function<void(ResultType)> callback) const;
 
 private:
+    mutable QMutex _mutex;
     std::unique_ptr<Table> _table;
 };
 
