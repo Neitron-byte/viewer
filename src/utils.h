@@ -28,7 +28,7 @@ inline QString toString(bool value)
 
 inline bool toBool(const QString& bool_str)
 {
-    if(bool_str == true_str)
+    if(bool_str.toLower() == true_str)
         return true;
     return false;
 }
