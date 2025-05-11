@@ -40,9 +40,9 @@ public:
 
 signals:
     void filesToRead(int num);
-    void filesReaded(const QString& file_name, ReadStatus status);
+    void fileReaded(const QString& file_name, ReadStatus status);
     void filesReaded(int num);
-    void filesReaded();
+    void fileReadingFinished();
     // QThread interface    
 protected:
     void run() override;

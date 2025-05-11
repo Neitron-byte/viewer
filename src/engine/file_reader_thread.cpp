@@ -34,41 +34,61 @@ QList<View::Record> View::FileReaderThread::getRecords() const
     return records;
 }
 
+View::Record View::FileReaderThread::getRecord(const QString &file_name) const
+{
+    const QMutexLocker locker(&_mutex);
+    if(auto it = _records.find(file_name); it != _records.end())
+    {
+        return it.value();
+    }
+    return {};
+}
+
+QString View::FileReaderThread::gerError(const QString &file_name) const
+{
+    const QMutexLocker locker(&_mutex);
+    if(auto it = _errors.find(file_name); it != _errors.end())
+    {
+        return it.value();
+    }
+    return {};
+}
+
 void View::FileReaderThread::run()
 {
     clear();
     QDir directory(_dir_path);
     QFileInfoList files = directory.entryInfoList(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot,QDir::NoSort);
-    Q_EMIT message(tr("Всего файлов: %1").arg(files.count()));
-    int success = 0;
-    int fail = 0;
     Q_EMIT filesToRead(files.count());
+    int number{0};
     for (const QFileInfo &file_info : files)
     {
+        ReadStatus status;
+        QString file_name = file_info.fileName();
         std::unique_ptr<IFileReader> file_reader = _reader_factory->createReader(file_info.suffix());
         if(file_reader)
-        {
+        {            
             Record rec;
             if(file_reader->read(file_info.absoluteFilePath(),rec))
-            {
-                pushData(rec);
-
-                ++success;
+            {                
+                pushData(file_name,rec);
+                status = ReadStatus::Success;
             }
             else
             {
-                sendMessage(file_info.fileName(),tr("Ошибка: %1").arg(file_reader->error()));
-                ++fail;
+                pushError(file_name,tr("Ошибка: %1").arg(file_reader->error()));
+                status = ReadStatus::Error;
             }
         }
         else
         {
-            sendMessage(file_info.fileName(),tr("Тип расширения не поддерживается"));
-            ++fail;
-        }
-        Q_EMIT filesLoaded(success+fail);
+            pushError(file_name,tr("Тип расширения не поддерживается"));
+            status = ReadStatus::Error;
+        }        
+        Q_EMIT fileReaded(file_name,status);
+        Q_EMIT filesReaded(++number);
     }
-    Q_EMIT message(tr("Итого. Прочитано успешно: %1. Прочитано с ошибками: %2").arg(success).arg(fail));
+    Q_EMIT fileReadingFinished();
 }
 
 void View::FileReaderThread::pushData(const QString &file_name, const Record &record)
@@ -77,14 +97,16 @@ void View::FileReaderThread::pushData(const QString &file_name, const Record &re
     _records[file_name] = record;
 }
 
-void View::FileReaderThread::sendMessage(const QString &file_name, const QString &msg)
+void View::FileReaderThread::pushError(const QString &file_name, const QString &error)
 {
-    Q_EMIT message(tr("Файл: %1. Cтатус: %2").arg(file_name).arg(msg));
+    QMutexLocker locker(&_mutex);
+    _errors[file_name] = error;
 }
 
 void View::FileReaderThread::clear()
 {
     QMutexLocker locker(&_mutex);
     _records.clear();
+    _errors.clear();
 }
 
