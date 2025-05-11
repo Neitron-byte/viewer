@@ -1,5 +1,7 @@
 #include "file_reader_thread.h"
 
+#include "algorithm"
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
@@ -23,7 +25,13 @@ void View::FileReaderThread::setDir(const QString &dir_path)
 QList<View::Record> View::FileReaderThread::getRecords() const
 {
     const QMutexLocker locker(&_mutex);
-    return _records;
+    QList<Record> records;
+    records.reserve(_records.size());
+
+    std::transform(_records.begin(),_records.end(),std::back_inserter(records),[](const auto& pair){
+        return pair.second;
+    });
+    return records;
 }
 
 void View::FileReaderThread::run()
@@ -34,7 +42,7 @@ void View::FileReaderThread::run()
     Q_EMIT message(tr("Всего файлов: %1").arg(files.count()));
     int success = 0;
     int fail = 0;
-    Q_EMIT filesCount(files.count());
+    Q_EMIT filesToRead(files.count());
     for (const QFileInfo &file_info : files)
     {
         std::unique_ptr<IFileReader> file_reader = _reader_factory->createReader(file_info.suffix());
@@ -44,7 +52,7 @@ void View::FileReaderThread::run()
             if(file_reader->read(file_info.absoluteFilePath(),rec))
             {
                 pushData(rec);
-                sendMessage(file_info.fileName(),"Успешно");
+
                 ++success;
             }
             else
@@ -63,10 +71,10 @@ void View::FileReaderThread::run()
     Q_EMIT message(tr("Итого. Прочитано успешно: %1. Прочитано с ошибками: %2").arg(success).arg(fail));
 }
 
-void View::FileReaderThread::pushData(const Record &record)
+void View::FileReaderThread::pushData(const QString &file_name, const Record &record)
 {
     QMutexLocker locker(&_mutex);
-    _records.append(record);
+    _records[file_name] = record;
 }
 
 void View::FileReaderThread::sendMessage(const QString &file_name, const QString &msg)

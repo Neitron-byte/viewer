@@ -5,6 +5,7 @@
 #include <QList>
 #include <QString>
 #include <QMutex>
+#include <QMap>
 
 #include "data/record.h"
 
@@ -20,25 +21,36 @@ class FileReaderThread : public QThread
 {
     Q_OBJECT
 public:
+
+    enum ReadStatus
+    {
+        Success = 0,
+        Error
+    };
+
     FileReaderThread(std::shared_ptr<ReaderFactory> reader_factory, QObject* parent = nullptr);
 
     QList<Record> getRecords() const;
 
+    Record getRecord(const QString& file_name) const;
+
+    QString gerError(const QString& file_name) const;
+
     void setDir(const QString& dir_path);
 
 signals:
-    void message(const QString& msg);
-    void filesCount(int num);
-    void filesLoaded(int num);
-
+    void filesToRead(int num);
+    void filesReaded(const QString& file_name, ReadStatus status);
+    void filesReaded(int num);
+    void filesReaded();
     // QThread interface    
 protected:
     void run() override;
 
 private:
-    void pushData(const Record& record);
+    void pushData(const QString& file_name, const Record& record);
 
-    void sendMessage(const QString& file_name, const QString& msg);
+    void pushError(const QString& file_name, const QString& error);
 
     std::unique_ptr<IFileReader> getReader(const QString& extansion);
 
@@ -47,7 +59,8 @@ private:
 private:
     mutable QMutex _mutex;
 
-    QList<Record> _records;
+    QMap<QString,Record> _records;
+    QMap<QString,QString> _errors;
 
     QString _dir_path;
 
