@@ -108,6 +108,7 @@ QVariant View::RecordsTableModel::headerData(int section, Qt::Orientation orient
         default:
             break;
         }
+        return value;
     }
-    return value;
+    return QAbstractTableModel::headerData(section,orientation,role);
 }

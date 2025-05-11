@@ -98,7 +98,6 @@ void View::Controller::onLoadThreadFinished()
         Q_EMIT message(tr("Ошибка загрузки данных. Отсутствует подключение к базе"));
         return;
     }
-    qDebug() << _readers_thread->getRecords().count();
     for(const auto& rec : _readers_thread->getRecords())
     {
         QString uuid = uuidGenerate();

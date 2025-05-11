@@ -24,7 +24,7 @@ bool View::JsonFileReader::read(const QString &file_path, Record &record)
         _error = QObject::tr("Ошибка парсинга Json: %1. Позиция: %2").arg(parse_error.errorString()).arg(parse_error.offset);
         return false;
     }
-    if(root.contains(rootTag))
+    if(!root.contains(rootTag))
     {
         _error = QObject::tr("Формат файла не поддерживается");
         return false;
