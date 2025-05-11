@@ -30,6 +30,11 @@ public:
         Compile
     };
 
+    enum
+    {
+        UUIDRole = Qt::UserRole + 1
+    };
+
     explicit RecordsTableModel(QObject* parent = nullptr);
 
     /// Добавление
@@ -42,6 +47,8 @@ public:
     void clear();
 
     Record getRecord(const QString& uuid) const;
+
+    void removeRecord(const QString& uuid);
 
 signals:
     void recordUpdated(const QString& uuid);

@@ -19,10 +19,10 @@
 const QLatin1String data_base_name("editors.db");
 const QLatin1String table_name("editors");
 
-View::Controller::Controller(QObject *parent): QObject(parent)
+View::Controller::Controller(QSharedPointer<RecordsTableModel> records_model, QObject *parent): QObject(parent)
+    , _records_model{records_model}
     , _reader_factory{std::make_shared<ReaderFactory>()}
     , _readers_thread{std::make_unique<FileReaderThread>(_reader_factory)}
-    , _records_model{new RecordsTableModel(this)}
 {
     connect(_readers_thread.get(),&FileReaderThread::finished,this,&Controller::onFileReadingFinished);
     //connect(_readers_thread.get(),&FileReaderThread::message,this,&Controller::statusLoadedMessage);
@@ -36,7 +36,7 @@ View::Controller::Controller(QObject *parent): QObject(parent)
     _database_is_connected = (table->isConnected() && table->create());
     _table = std::make_unique<TableWrapper>(std::move(table));
 
-    connect(_records_model,&RecordsTableModel::recordUpdated,this,&Controller::onRecordUpdated);
+    connect(_records_model.get(),&RecordsTableModel::recordUpdated,this,&Controller::onRecordUpdated);
 
     reset();
 }
@@ -92,6 +92,38 @@ void View::Controller::clearData()
     });
 }
 
+void View::Controller::addRecord()
+{
+    QString uuid = uuidGenerate();
+    Record rec;
+    _table->append(uuid,rec,[this,uuid,rec](bool res){
+        if(res)
+        {
+            _records_model->append({uuid,rec});
+            Q_EMIT message(tr("Новая запись добавлена"));
+        }
+        else
+        {
+            Q_EMIT message(tr("Запись не добавлена. Ошибка: %1").arg(_table->error()));
+        }
+    });
+}
+
+void View::Controller::removeRecord(const QString &uuid)
+{
+    _table->remove(uuid,[this,uuid](bool res){
+        if(res)
+        {
+            _records_model->removeRecord(uuid);
+            Q_EMIT message(tr("Запись успешно удалена"));
+        }
+        else
+        {
+            Q_EMIT message(tr("Запись не удалена. Ошибка: %1").arg(_table->error()));
+        }
+    });
+}
+
 void View::Controller::onFileReadingFinished()
 {
     Q_EMIT statusLoadedMessage(tr("Итого прочитано. Успешно: %1. C ошибками: %2").arg(_success_read_files.count()).arg(_error_list_files.count()));
@@ -121,11 +153,6 @@ void View::Controller::onFileReadingFinished()
         });
     }
     Q_EMIT filesLoaded();
-}
-
-View::RecordsTableModel *View::Controller::getModel() const
-{
-    return _records_model;
 }
 
 void View::Controller::onFileReaded(const QString &file_name, int status)
@@ -168,9 +195,9 @@ void View::Controller::onRecordUpdated(const QString &uuid)
     _table->update(uuid,record,[this,uuid](bool result)
     {
         if(result)
-            Q_EMIT message(tr("Запись %1 обновлена").arg(uuid));
+            Q_EMIT message(tr("Запись успешно обновлена"));
         else
-            Q_EMIT message(tr("Ошибка: %1").arg(_table->error()));
+            Q_EMIT message(tr("Запись не обновлена. Ошибка: %1").arg(_table->error()));
     });
 }
 

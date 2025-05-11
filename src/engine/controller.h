@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QSharedPointer>
 
 #include "file_reader_thread.h"
 #include "database/table_wrapper.h"
@@ -21,15 +22,15 @@ class Controller : public QObject
 {
 Q_OBJECT
 public:
-    Controller(QObject* parent = nullptr);
+    Controller(QSharedPointer<RecordsTableModel> records_model, QObject* parent = nullptr);
 
     void loadFiles(const QString& dir_path);
-
-    RecordsTableModel* getModel() const;
 
 public slots:
     void loadData();
     void clearData();
+    void addRecord();
+    void removeRecord(const QString& uuid);
 
 signals:
     void filesLoaded();
@@ -49,12 +50,11 @@ private:
     void reset();
 
 private:
+    QSharedPointer<RecordsTableModel> _records_model;
     std::shared_ptr<ReaderFactory> _reader_factory;
-    std::unique_ptr<FileReaderThread> _readers_thread;
-    RecordsTableModel* _records_model;
+    std::unique_ptr<FileReaderThread> _readers_thread;    
     bool _database_is_connected;
     std::unique_ptr<TableWrapper> _table;
-
     QList<QString> _success_read_files;
     QList<QString> _error_list_files;
     int _load_counter;

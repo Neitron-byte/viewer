@@ -3,6 +3,7 @@
 #include "algorithm"
 
 #include <QDebug>
+#include <ostream>
 
 View::RecordsTableModel::RecordsTableModel(QObject *parent): QAbstractTableModel(parent)
 {
@@ -32,6 +33,23 @@ void View::RecordsTableModel::clear()
     endRemoveRows();
 }
 
+void View::RecordsTableModel::removeRecord(const QString &uuid)
+{
+    auto pred = [uuid](const QPair<QString,Record>& pair){
+        return   uuid == pair.first;
+    };
+
+    auto it = std::find_if(_records.begin(), _records.end(), pred);
+
+    if (it == _records.end())
+        return;
+
+    size_t index = std::distance(_records.begin(), it);
+    beginRemoveRows(QModelIndex(),index,index);
+    _records.erase(it);
+    endRemoveRows();
+}
+
 View::Record View::RecordsTableModel::getRecord(const QString &uuid) const
 {
     auto pred = [uuid](const QPair<QString,Record>& pair){
@@ -58,34 +76,13 @@ int View::RecordsTableModel::columnCount(const QModelIndex &parent) const
 
 QVariant View::RecordsTableModel::data(const QModelIndex &index, int role) const
 {
+    if(!index.isValid() || index.row() >= _records.count())
+        return {};
+
     QVariant value;
     switch (role)
     {
     case Qt::DisplayRole:
-        switch (index.column())
-        {
-        case RecordsField::EditorName:
-            value = _records.at(index.row()).second.editorName();
-            break;
-        case RecordsField::Formats:
-            value = _records.at(index.row()).second.getFormats();
-            break;
-        case RecordsField::Encoding:
-            value = _records.at(index.row()).second.getEncoding();
-            break;
-        case RecordsField::Intellisense:
-            value = _records.at(index.row()).second.hasIntellisense();
-            break;
-        case RecordsField::Plugins:
-            value = _records.at(index.row()).second.hasPlugins();
-            break;
-        case RecordsField::Compile:
-            value = _records.at(index.row()).second.canCompile();
-            break;
-        default:
-            break;
-        }
-        break;
     case Qt::EditRole:
         switch (index.column())
         {
@@ -110,6 +107,9 @@ QVariant View::RecordsTableModel::data(const QModelIndex &index, int role) const
         default:
             break;
         }
+        break;
+    case UUIDRole:
+        value = _records.at(index.row()).first;
     default:
         break;
     }

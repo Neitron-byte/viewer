@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QTimer>
 #include <QStatusBar>
+#include <QAction>
 
 #include "engine/controller.h"
 #include "engine/records_table_model.h"
@@ -13,13 +14,17 @@
 #include "widgets/status_widget.h"
 
 View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
-    , _controller{new Controller}
+    , _records_model{new RecordsTableModel(this)}
+    , _controller{new Controller(_records_model,this)}
 {
     _table_view = new QTableView(this);
     _table_view->setEditTriggers(QAbstractItemView::DoubleClicked);
     _table_view->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+    _table_view->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    _table_view->setModel(_controller->getModel());
+    createTableViewActions();
+
+    _table_view->setModel(_records_model.get());
 
     setCentralWidget(_table_view);
 
@@ -37,10 +42,6 @@ View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
         statusBar()->showMessage(msg);
     });
 
-    QTimer::singleShot(10,[this](){
-        _controller->loadData();
-    });
-
     _status_widget = new StatusWidget(this);
     _status_widget->setWindowFlag(Qt::Tool,true);
 
@@ -48,6 +49,10 @@ View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     connect(_controller.get(),&Controller::filesCount,_status_widget,&StatusWidget::setMaximum);
     connect(_controller.get(),&Controller::progress,_status_widget,&StatusWidget::setValue);
     connect(_controller.get(),&Controller::operationChanged,_status_widget,&StatusWidget::setOperationName);
+
+    QTimer::singleShot(10,[this](){
+        _controller->loadData();
+    });
 }
 
 void View::MainWindow::onImportActionTriggered()
@@ -59,4 +64,28 @@ void View::MainWindow::onImportActionTriggered()
     _status_widget->clear();
     _status_widget->show();
     _controller->loadFiles(folder_path);
+}
+
+void View::MainWindow::onRemoveRecords()
+{
+    QModelIndexList selectedRows = _table_view->selectionModel()->selectedRows();
+    for (const QModelIndex &index : selectedRows)
+    {
+        QString uuid = _records_model->data(index,RecordsTableModel::UUIDRole).toString();
+        if(!uuid.isEmpty())
+            _controller->removeRecord(uuid);
+    }
+}
+
+void View::MainWindow::createTableViewActions()
+{
+    QAction* add_action = new QAction(tr("Добавить"),_table_view);
+    connect(add_action,&QAction::triggered,_controller.get(),&Controller::addRecord);
+    _table_view->addAction(add_action);
+
+    QAction* del_action = new QAction(tr("Удалить"),_table_view);
+    connect(del_action,&QAction::triggered,this,&MainWindow::onRemoveRecords);
+    _table_view->addAction(del_action);
+
+
 }
