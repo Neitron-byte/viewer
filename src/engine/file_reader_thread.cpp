@@ -9,7 +9,6 @@
 #include "readers/reader_factory.h"
 #include "readers/i_file_reader.h"
 
-
 View::FileReaderThread::FileReaderThread(std::shared_ptr<ReaderFactory> reader_factory, QObject *parent) : QThread(parent)
     , _reader_factory(reader_factory)
 {
@@ -29,7 +28,7 @@ QList<View::Record> View::FileReaderThread::getRecords() const
     records.reserve(_records.size());
 
     std::transform(_records.begin(),_records.end(),std::back_inserter(records),[](const auto& pair){
-        return pair.second;
+        return pair;
     });
     return records;
 }
@@ -84,11 +83,10 @@ void View::FileReaderThread::run()
         {
             pushError(file_name,tr("Тип расширения не поддерживается"));
             status = ReadStatus::Error;
-        }        
-        Q_EMIT fileReaded(file_name,status);
+        }
+        Q_EMIT fileReaded(file_name,(int)status);
         Q_EMIT filesReaded(++number);
     }
-    Q_EMIT fileReadingFinished();
 }
 
 void View::FileReaderThread::pushData(const QString &file_name, const Record &record)

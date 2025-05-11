@@ -8,6 +8,7 @@
 #include <QMap>
 
 #include "data/record.h"
+#include "definitions.h"
 
 namespace View {
 
@@ -21,13 +22,6 @@ class FileReaderThread : public QThread
 {
     Q_OBJECT
 public:
-
-    enum ReadStatus
-    {
-        Success = 0,
-        Error
-    };
-
     FileReaderThread(std::shared_ptr<ReaderFactory> reader_factory, QObject* parent = nullptr);
 
     QList<Record> getRecords() const;
@@ -40,9 +34,8 @@ public:
 
 signals:
     void filesToRead(int num);
-    void fileReaded(const QString& file_name, ReadStatus status);
+    void fileReaded(const QString& file_name, int status);
     void filesReaded(int num);
-    void fileReadingFinished();
     // QThread interface    
 protected:
     void run() override;

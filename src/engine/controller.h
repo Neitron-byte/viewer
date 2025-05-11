@@ -37,12 +37,16 @@ signals:
     void filesCount(int num);
     void progress(int num);
     void message(const QString& message);
+    void operationChanged(const QString& operation_name);
 
 private slots:
-    void onLoadThreadFinished();
+    void onFileReadingFinished();
+    void onFileReaded(const QString& file_name, int status);
 
 private:
     QString uuidGenerate();
+
+    void reset();
 
 private:
     std::shared_ptr<ReaderFactory> _reader_factory;
@@ -50,5 +54,9 @@ private:
     RecordsTableModel* _records_model;
     bool _database_is_connected;
     std::unique_ptr<TableWrapper> _table;
+
+    QList<QString> _success_read_files;
+    QList<QString> _error_list_files;
+    int _load_counter;
 };
 }

@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QDebug>
 
 View::StatusWidget::StatusWidget(QWidget *parent): QWidget(parent), _progress_bar(new QProgressBar(this)), _text_edit(new QTextEdit(this))
 {
@@ -18,25 +19,37 @@ View::StatusWidget::StatusWidget(QWidget *parent): QWidget(parent), _progress_ba
     h_l->addWidget(ok_btn);
     connect(ok_btn,&QPushButton::clicked,this,&StatusWidget::hide);
     v_l->addLayout(h_l);
+
+    _progress_bar->setMinimum(0);
 }
 
-void View::StatusWidget::setRange(QPair<int, int> range)
+void View::StatusWidget::setMaximum(int maximum)
 {
-    _progress_bar->setRange(range.first,range.second);
+    qDebug() << "Set Max: " << maximum;
+    _progress_bar->setMaximum(maximum);
+    _progress_bar->setMinimum(0);
 }
+
 
 void View::StatusWidget::clear()
 {
     _progress_bar->reset();
     _text_edit->clear();
+    _progress_bar->resetFormat();
 }
 
 void View::StatusWidget::setValue(int value)
 {
+    qDebug() << "SetValue: " << value;
     _progress_bar->setValue(value);
 }
 
 void View::StatusWidget::pushMessage(const QString &message)
 {
     _text_edit->append(message);
+}
+
+void View::StatusWidget::setOperationName(const QString &operation_name)
+{
+    _progress_bar->setFormat(operation_name + "%p%");
 }

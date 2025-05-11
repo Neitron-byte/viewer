@@ -37,6 +37,14 @@ View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     QTimer::singleShot(10,[this](){
         _controller->loadData();
     });
+
+    _status_widget = new StatusWidget(this);
+    _status_widget->setWindowFlag(Qt::Tool,true);
+
+    connect(_controller.get(),&Controller::statusLoadedMessage,_status_widget,&StatusWidget::pushMessage);
+    connect(_controller.get(),&Controller::filesCount,_status_widget,&StatusWidget::setMaximum);
+    connect(_controller.get(),&Controller::progress,_status_widget,&StatusWidget::setValue);
+    connect(_controller.get(),&Controller::operationChanged,_status_widget,&StatusWidget::setOperationName);
 }
 
 void View::MainWindow::onImportActionTriggered()
@@ -45,15 +53,7 @@ void View::MainWindow::onImportActionTriggered()
     if(folder_path.isEmpty())
         return;
 
-    StatusWidget* status_widget = new StatusWidget(this);
-    status_widget->setWindowFlag(Qt::Tool,true);
-    status_widget->setAttribute(Qt::WA_DeleteOnClose);
-    connect(_controller.get(),&Controller::statusLoadedMessage,status_widget,&StatusWidget::pushMessage);
-    connect(_controller.get(),&Controller::filesCount,[status_widget](int count){
-        status_widget->setRange({0,count});
-    });
-    connect(_controller.get(),&Controller::filesCount,status_widget,&StatusWidget::setValue);
-
-    status_widget->show();
+    _status_widget->clear();
+    _status_widget->show();
     _controller->loadFiles(folder_path);
 }

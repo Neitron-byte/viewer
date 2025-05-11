@@ -8,6 +8,7 @@ class QTableView;
 
 namespace View
 {
+class StatusWidget;
 /*!
  * \brief The MainWindow class
  */
@@ -23,6 +24,7 @@ private slots:
 private:
     QScopedPointer<Controller> _controller;
     QTableView* _table_view;
+    StatusWidget* _status_widget;
 };
 }
 

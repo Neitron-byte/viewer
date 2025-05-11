@@ -16,12 +16,12 @@ class StatusWidget: public QWidget
 public:
     explicit StatusWidget(QWidget* parent = nullptr);
 
-    void setRange(QPair<int,int> range);
-
 public slots:
+    void setMaximum(int maximum);
     void clear();
     void setValue(int value);
     void pushMessage(const QString& message);
+    void setOperationName(const QString& operation_name);
 
 private:
     QProgressBar* _progress_bar;
