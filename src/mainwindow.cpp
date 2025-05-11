@@ -77,6 +77,20 @@ void View::MainWindow::onRemoveRecords()
     }
 }
 
+void View::MainWindow::onExportRecord()
+{
+    QModelIndex index = _table_view->currentIndex();
+    if(!index.isValid())
+        return;
+
+    Record record = _records_model->getRecord(_records_model->data(index,RecordsTableModel::UUIDRole).toString());
+    if(!record.isValid())
+        return;
+
+
+
+}
+
 void View::MainWindow::createTableViewActions()
 {
     QAction* add_action = new QAction(tr("Добавить"),_table_view);
@@ -87,5 +101,6 @@ void View::MainWindow::createTableViewActions()
     connect(del_action,&QAction::triggered,this,&MainWindow::onRemoveRecords);
     _table_view->addAction(del_action);
 
-
+    QAction* export_action = new QAction(tr("Экспортировать"),_table_view);
+    connect(export_action,&QAction::triggered,this,&MainWindow::onExportRecord);
 }

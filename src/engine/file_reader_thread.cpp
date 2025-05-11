@@ -6,9 +6,6 @@
 #include <QFileInfo>
 #include <QDir>
 
-#include "readers/reader_factory.h"
-#include "readers/i_file_reader.h"
-
 View::FileReaderThread::FileReaderThread(std::shared_ptr<ReaderFactory> reader_factory, QObject *parent) : QThread(parent)
     , _reader_factory(reader_factory)
 {
@@ -64,7 +61,7 @@ void View::FileReaderThread::run()
     {
         ReadStatus status;
         QString file_name = file_info.fileName();
-        std::unique_ptr<IFileReader> file_reader = _reader_factory->createReader(file_info.suffix());
+        std::unique_ptr<IFileReader> file_reader = _reader_factory->create(file_info.suffix());
         if(file_reader)
         {            
             Record rec;

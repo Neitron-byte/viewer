@@ -5,7 +5,6 @@
 #include <QDir>
 #include <QDebug>
 
-#include "readers/reader_factory.h"
 #include "file_reader_thread.h"
 #include "database/table.h"
 #include "records_table_model.h"

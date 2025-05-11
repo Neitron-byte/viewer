@@ -22,7 +22,7 @@ public:
 private slots:
     void onImportActionTriggered();
     void onRemoveRecords();
-
+    void onExportRecord();
 private:
     void createTableViewActions();
 

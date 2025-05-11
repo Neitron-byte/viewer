@@ -8,11 +8,10 @@
 #include "file_reader_thread.h"
 #include "database/table_wrapper.h"
 
+#include "readers/factory.h"
+
 namespace View
 {
-class ReaderFactory;
-//class FileReaderThread;
-//class TableWrapper;
 class RecordsTableModel;
 
 /*!

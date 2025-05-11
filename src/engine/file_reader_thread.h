@@ -10,10 +10,9 @@
 #include "data/record.h"
 #include "definitions.h"
 
-namespace View {
+#include "readers/factory.h"
 
-class ReaderFactory;
-class IFileReader;
+namespace View {
 /*!
  * \brief The FileReaderThread class
  * Поток чтения файлов
