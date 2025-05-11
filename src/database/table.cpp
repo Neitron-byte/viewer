@@ -40,7 +40,7 @@ bool View::Table::append(const QString &id, const Record &rec)
 bool View::Table::update(const QString &id, const Record &rec)
 {   
     QString update_query =
-        QString("UPDATE %1 SET name = %2, formats = %3, encoding = '%4', intellisense = '%5', plugins = '%6', compile = '%7' WHERE id = '%8'")
+        QString("UPDATE %1 SET name = '%2', formats = '%3', encoding = '%4', intellisense = '%5', plugins = '%6', compile = '%7' WHERE id = '%8'")
             .arg(_table_name)
             .arg(rec.editorName())
             .arg(rec.getFormats())

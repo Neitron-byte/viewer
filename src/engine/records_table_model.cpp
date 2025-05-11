@@ -151,7 +151,7 @@ bool View::RecordsTableModel::setData(const QModelIndex & index, const QVariant 
         ok = true;
         Q_EMIT dataChanged(index, index,
                            {Qt::DisplayRole, Qt::EditRole});
-        recordUpdated(_records[index.row()].first);
+        Q_EMIT recordUpdated(_records[index.row()].first);
     default:
         break;
     }

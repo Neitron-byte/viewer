@@ -42,7 +42,7 @@ signals:
 private slots:
     void onFileReadingFinished();
     void onFileReaded(const QString& file_name, int status);
-
+    void onRecordUpdated(const QString& uuid);
 private:
     QString uuidGenerate();
 

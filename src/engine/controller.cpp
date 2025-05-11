@@ -36,6 +36,8 @@ View::Controller::Controller(QObject *parent): QObject(parent)
     _database_is_connected = (table->isConnected() && table->create());
     _table = std::make_unique<TableWrapper>(std::move(table));
 
+    connect(_records_model,&RecordsTableModel::recordUpdated,this,&Controller::onRecordUpdated);
+
     reset();
 }
 
@@ -98,26 +100,26 @@ void View::Controller::onFileReadingFinished()
     auto records = _readers_thread->getRecords();
     Q_EMIT filesCount(records.count());
 
-    for(const auto& rec : _readers_thread->getRecords())
-    {
-        QString uuid = uuidGenerate();
-        _records_model->append({uuid,rec});
-    }
     // for(const auto& rec : _readers_thread->getRecords())
     // {
     //     QString uuid = uuidGenerate();
-    //     _table->append(uuid,rec,[this,uuid,rec](bool res){
-    //         if(res)
-    //         {
-    //             _records_model->append({uuid,rec});
-    //         }
-    //         else
-    //         {
-    //             Q_EMIT statusLoadedMessage(_table->error());
-    //         }
-    //         progress(++_load_counter);
-    //     });
+    //     _records_model->append({uuid,rec});
     // }
+    for(const auto& rec : _readers_thread->getRecords())
+    {
+        QString uuid = uuidGenerate();
+        _table->append(uuid,rec,[this,uuid,rec](bool res){
+            if(res)
+            {
+                _records_model->append({uuid,rec});
+            }
+            else
+            {
+                Q_EMIT statusLoadedMessage(_table->error());
+            }
+            progress(++_load_counter);
+        });
+    }
     Q_EMIT filesLoaded();
 }
 
@@ -158,6 +160,18 @@ void View::Controller::onFileReaded(const QString &file_name, int status)
     //     Q_EMIT statusLoadedMessage(QString("Файл: %1 Ошибка: %2").arg(file_name).arg(_readers_thread->gerError(file_name)));
     // }
     // Q_EMIT progress(++_counter);
+}
+
+void View::Controller::onRecordUpdated(const QString &uuid)
+{
+    auto record = _records_model->getRecord(uuid);
+    _table->update(uuid,record,[this,uuid](bool result)
+    {
+        if(result)
+            Q_EMIT message(tr("Запись %1 обновлена").arg(uuid));
+        else
+            Q_EMIT message(tr("Ошибка: %1").arg(_table->error()));
+    });
 }
 
 QString View::Controller::uuidGenerate()
