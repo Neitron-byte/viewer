@@ -97,21 +97,27 @@ void View::Controller::onFileReadingFinished()
 
     auto records = _readers_thread->getRecords();
     Q_EMIT filesCount(records.count());
+
     for(const auto& rec : _readers_thread->getRecords())
     {
         QString uuid = uuidGenerate();
-        _table->append(uuid,rec,[this,uuid,rec](bool res){
-            if(res)
-            {
-                _records_model->append({uuid,rec});
-            }
-            else
-            {
-                Q_EMIT statusLoadedMessage(_table->error());
-            }
-            progress(++_load_counter);
-        });
+        _records_model->append({uuid,rec});
     }
+    // for(const auto& rec : _readers_thread->getRecords())
+    // {
+    //     QString uuid = uuidGenerate();
+    //     _table->append(uuid,rec,[this,uuid,rec](bool res){
+    //         if(res)
+    //         {
+    //             _records_model->append({uuid,rec});
+    //         }
+    //         else
+    //         {
+    //             Q_EMIT statusLoadedMessage(_table->error());
+    //         }
+    //         progress(++_load_counter);
+    //     });
+    // }
     Q_EMIT filesLoaded();
 }
 

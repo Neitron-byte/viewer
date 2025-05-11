@@ -16,6 +16,9 @@ View::MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent}
     , _controller{new Controller}
 {
     _table_view = new QTableView(this);
+    _table_view->setEditTriggers(QAbstractItemView::DoubleClicked);
+    _table_view->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+
     _table_view->setModel(_controller->getModel());
 
     setCentralWidget(_table_view);

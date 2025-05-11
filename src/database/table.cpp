@@ -29,8 +29,8 @@ bool View::Table::append(const QString &id, const Record &rec)
 
     insert_query.bindValue(0, id);
     insert_query.bindValue(1, rec.editorName());
-    insert_query.bindValue(2, toString(rec.getFormats()));
-    insert_query.bindValue(3, toString(rec.getEncoding()));
+    insert_query.bindValue(2, rec.getFormats());
+    insert_query.bindValue(3, rec.getEncoding());
     insert_query.bindValue(4, toInt(rec.hasIntellisense()));
     insert_query.bindValue(5, toInt(rec.hasPlugins()));
     insert_query.bindValue(6, toInt(rec.canCompile()));
@@ -43,8 +43,8 @@ bool View::Table::update(const QString &id, const Record &rec)
         QString("UPDATE %1 SET name = %2, formats = %3, encoding = '%4', intellisense = '%5', plugins = '%6', compile = '%7' WHERE id = '%8'")
             .arg(_table_name)
             .arg(rec.editorName())
-            .arg(toString(rec.getFormats()))
-            .arg(toString(rec.getEncoding()))
+            .arg(rec.getFormats())
+            .arg(rec.getEncoding())
             .arg(toInt(rec.hasIntellisense()))
             .arg(toInt(rec.hasPlugins()))
             .arg(toInt(rec.canCompile()))
@@ -86,8 +86,8 @@ View::Record View::Table::getRecord(const QString &id) const
     while (select_query.next())
     {
         rec.setEditorName(select_query.value("name").toString());
-        rec.setFormats(toList(select_query.value("formats").toString()));
-        rec.setEncoding(toList(select_query.value("encoding").toString()));
+        rec.setFormats(select_query.value("formats").toString());
+        rec.setEncoding(select_query.value("encoding").toString());
         bool ok = true;
         bool res = toBool(select_query.value("intellisense").toInt(),&ok);
         if(ok)

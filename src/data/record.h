@@ -17,15 +17,15 @@ public:
     bool isValid() const;
 
     void setEditorName(const QString& editor_name);
-    void setFormats(const QStringList& formats);
-    void setEncoding(const QStringList& encoding);
+    void setFormats(const QString& formats);
+    void setEncoding(const QString& encoding);
     void setHasIntelisense(bool has);
     void setHasPlugins(bool has);
     void setCanCompile(bool can);
 
     QString editorName() const {return _editor_name;}
-    QStringList getFormats() const {return _formats;}
-    QStringList getEncoding() const {return _encoding;}
+    QString getFormats() const {return _formats;}
+    QString getEncoding() const {return _encoding;}
     bool hasIntellisense() const {return _has_intellisense;}
     bool hasPlugins() const {return _has_plugins;}
     bool canCompile() const {return _can_compile;}
@@ -42,8 +42,8 @@ public:
 
 private:
     QString _editor_name;
-    QStringList _formats;
-    QStringList _encoding;
+    QString _formats;
+    QString _encoding;
     bool _has_intellisense;
     bool _has_plugins;
     bool _can_compile;

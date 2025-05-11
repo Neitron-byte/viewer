@@ -38,12 +38,12 @@ void View::Record::setEditorName(const QString &editor_name)
     _editor_name = editor_name;
 }
 
-void View::Record::setFormats(const QStringList &formats)
+void View::Record::setFormats(const QString &formats)
 {
     _formats = formats;
 }
 
-void View::Record::setEncoding(const QStringList &encoding)
+void View::Record::setEncoding(const QString &encoding)
 {
     _encoding = encoding;
 }
@@ -70,8 +70,8 @@ QMap<QString, QString> View::Record::asXml() const
 {
     QMap<QString,QString> map;
     map[editor_key] = _editor_name;
-    map[formats_key] = toString(_formats);
-    map[encoding_key] = toString(_encoding);
+    map[formats_key] = _formats;//toString(_formats);
+    map[encoding_key] = _encoding;//toString(_encoding);
     map[intellisense_key] = toString(_has_intellisense);
     map[plugins_key] = toString(_has_plugins);
     map[compile_key] = toString(_can_compile);
@@ -81,8 +81,8 @@ QMap<QString, QString> View::Record::asXml() const
 bool View::Record::fromXml(const QMap<QString, QString> &map)
 {
     _editor_name = map.value(editor_key,"");
-    _formats = toList(map.value(formats_key,""));
-    _encoding = toList(map.value(encoding_key,""));
+    _formats = map.value(formats_key,"");
+    _encoding = map.value(encoding_key,"");
     auto val = map.value(intellisense_key,"");
     if(val == true_str || val == false_str)
         setHasIntelisense(toBool(val));
@@ -99,8 +99,8 @@ QJsonObject View::Record::asJson() const
 {
     QJsonObject object;
     object[editor_key] = _editor_name;
-    object[formats_key] = QJsonArray::fromStringList(_formats);
-    object[encoding_key] = QJsonArray::fromStringList(_encoding);
+    object[formats_key] = _formats;//QJsonArray::fromStringList(_formats);
+    object[encoding_key] = _encoding;//QJsonArray::fromStringList(_encoding);
     object[intellisense_key] = _has_intellisense;
     object[plugins_key] = _has_plugins;
     object[compile_key] = _can_compile;
@@ -110,8 +110,8 @@ QJsonObject View::Record::asJson() const
 bool View::Record::fromJson(const QJsonObject &object)
 {
     _editor_name = object.value(editor_key).toString("");
-    _formats = object.value(formats_key).toVariant().value<QStringList>();
-    _encoding = object.value(encoding_key).toVariant().value<QStringList>();
+    _formats = object.value(formats_key).toString("");//.toVariant().value<QStringList>();
+    _encoding = object.value(encoding_key).toString("");//.toVariant().value<QStringList>();
     if(object.contains(intellisense_key)&& object.value(intellisense_key).isBool())
         setHasIntelisense(object.value(intellisense_key).toBool(false));
     if(object.contains(plugins_key) && object.value(plugins_key).isBool())
