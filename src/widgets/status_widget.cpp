@@ -24,8 +24,7 @@ View::StatusWidget::StatusWidget(QWidget *parent): QWidget(parent), _progress_ba
 }
 
 void View::StatusWidget::setMaximum(int maximum)
-{
-    qDebug() << "Set Max: " << maximum;
+{    
     _progress_bar->setMaximum(maximum);
     _progress_bar->setMinimum(0);
 }
@@ -40,7 +39,6 @@ void View::StatusWidget::clear()
 
 void View::StatusWidget::setValue(int value)
 {
-    qDebug() << "SetValue: " << value;
     _progress_bar->setValue(value);
 }
 
