@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QStatusBar>
 #include <QAction>
+#include <QFileDialog>
 
 #include "engine/controller.h"
 #include "engine/records_table_model.h"
@@ -83,12 +84,16 @@ void View::MainWindow::onExportRecord()
     if(!index.isValid())
         return;
 
-    Record record = _records_model->getRecord(_records_model->data(index,RecordsTableModel::UUIDRole).toString());
-    if(!record.isValid())
+    QString uuid = _records_model->data(index,RecordsTableModel::UUIDRole).toString();
+    if(uuid.isEmpty())
         return;
 
-
-
+    QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Сохранить"),"/home", tr("Json file (*.json);;XML file (*.xml)"));
+    if (!fileName.isEmpty())
+    {
+        _controller->writeFile(uuid,fileName);
+    }
 }
 
 void View::MainWindow::createTableViewActions()
@@ -103,4 +108,5 @@ void View::MainWindow::createTableViewActions()
 
     QAction* export_action = new QAction(tr("Экспортировать"),_table_view);
     connect(export_action,&QAction::triggered,this,&MainWindow::onExportRecord);
+    _table_view->addAction(export_action);
 }

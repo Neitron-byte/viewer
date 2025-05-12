@@ -8,9 +8,13 @@
 #include "file_reader_thread.h"
 #include "database/table.h"
 #include "records_table_model.h"
+#include "file_writer.h"
 
 #include "readers/json_file_reader.h"
 #include "readers/xml_file_reader.h"
+
+#include "readers/json_file_writer.h"
+#include "readers/xml_file_writer.h"
 
 #include "database/connection.h"
 #include "database/table_wrapper.h"
@@ -22,6 +26,8 @@ View::Controller::Controller(QSharedPointer<RecordsTableModel> records_model, QO
     , _records_model{records_model}
     , _reader_factory{std::make_shared<ReaderFactory>()}
     , _readers_thread{std::make_unique<FileReaderThread>(_reader_factory)}
+    , _writer_factory{std::make_shared<WriterFactory>()}
+    , _file_writer{std::make_unique<FileWriter>(_writer_factory)}
 {
     connect(_readers_thread.get(),&FileReaderThread::finished,this,&Controller::onFileReadingFinished);
     //connect(_readers_thread.get(),&FileReaderThread::message,this,&Controller::statusLoadedMessage);
@@ -31,11 +37,22 @@ View::Controller::Controller(QSharedPointer<RecordsTableModel> records_model, QO
     _reader_factory->registerCreator("xml",[](){ return std::make_unique<XMLFileReader>();});
     _reader_factory->registerCreator("json",[](){return std::make_unique<JsonFileReader>();});
 
+    _writer_factory->registerCreator("xml",[](){return std::make_unique<XMLFileWriter>();});
+    _writer_factory->registerCreator("json",[](){return std::make_unique<JsonFileWriter>();});
+
     std::unique_ptr<Table> table = std::make_unique<Table>(table_name, Connection::createConnection(data_base_name));
     _database_is_connected = (table->isConnected() && table->create());
     _table = std::make_unique<TableWrapper>(std::move(table));
 
     connect(_records_model.get(),&RecordsTableModel::recordUpdated,this,&Controller::onRecordUpdated);
+
+    connect(_file_writer.get(),&FileWriter::writeSucceeded,[this](){
+        Q_EMIT message(tr("Экспорт записи выполнен успешно"));
+    });
+
+    connect(_file_writer.get(),&FileWriter::writeFailed,[this](){
+        Q_EMIT message(tr("Экспорт не выполнен. Ошибка: %1").arg(_file_writer->error()));
+    });
 
     reset();
 }
@@ -51,6 +68,12 @@ void View::Controller::loadFiles(const QString &dir_path)
     Q_EMIT operationChanged(tr("Чтение файлов ..."));
     _readers_thread->setDir(dir_path);
     _readers_thread->start();
+}
+
+void View::Controller::writeFile(const QString &uuid, const QString &file_path)
+{
+    Record record = _records_model->getRecord(uuid);
+    _file_writer->write(file_path,record);
 }
 
 void View::Controller::loadData()

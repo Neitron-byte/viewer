@@ -9,11 +9,11 @@
 #include "database/table_wrapper.h"
 
 #include "readers/factory.h"
+#include "file_writer.h"
 
 namespace View
 {
 class RecordsTableModel;
-
 /*!
  * \brief The Controller class
  */
@@ -24,6 +24,8 @@ public:
     Controller(QSharedPointer<RecordsTableModel> records_model, QObject* parent = nullptr);
 
     void loadFiles(const QString& dir_path);
+
+    void writeFile(const QString& uuid,const QString& file_path);
 
 public slots:
     void loadData();
@@ -50,8 +52,13 @@ private:
 
 private:
     QSharedPointer<RecordsTableModel> _records_model;
+
     std::shared_ptr<ReaderFactory> _reader_factory;
-    std::unique_ptr<FileReaderThread> _readers_thread;    
+    std::unique_ptr<FileReaderThread> _readers_thread;
+
+    std::shared_ptr<WriterFactory> _writer_factory;
+    std::unique_ptr<FileWriter> _file_writer;
+
     bool _database_is_connected;
     std::unique_ptr<TableWrapper> _table;
     QList<QString> _success_read_files;

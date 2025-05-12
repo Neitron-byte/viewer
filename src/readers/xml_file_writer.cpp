@@ -9,7 +9,7 @@ bool View::XMLFileWriter::write(const QString &file_path, const Record &record)
 {
     QFile file(file_path);
 
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         _error = file.errorString();
         return false;
     }
@@ -23,7 +23,9 @@ bool View::XMLFileWriter::write(const QString &file_path, const Record &record)
 
     for(auto it = map.begin(),it2 = map.end();it != it2; ++it)
     {
-        xml.writeTextElement(it.key(),it.value());
+        //xml.writeTextElement(it.key(),it.value());
+        xml.writeStartElement(it.key());
+        xml.writeCharacters(it.value());
         xml.writeEndElement();
     }
 
